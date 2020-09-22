@@ -11,7 +11,7 @@ Animation windAnimation1, windAnimation2;
 
 //day selector
 color selected = 150; //day selector
-boolean[] isSelected = new boolean[7];
+boolean[] isSelected = new boolean[8];
 
 int daySelected; //will determine which row in our tables we get the data from
 
@@ -21,12 +21,14 @@ Drop[] drops;       // An array of drop objects
 int totalDrops = 0; // totalDrops
 boolean ifRain = false;
 
-Table longRainTable; //table to hold csv for weeks rainfall taken from research lab
-int rainIndex =0;
+Table longRainTable; //table to load csv for weeks rainfall taken from research lab
 Table totalDailyRainfallTable;//table to hold total daily rainfall values
-Table averageDailyWindSpeedTable;
-Table longWindSpeedTable; //table to hold csv for weeks windspeeds taken from research lab
-int windSpeedIndex =0;
+Table longWindSpeedTable; //table to load csv for weeks windspeeds taken from research lab
+Table averageDailyWindSpeedTable; //table to hold calculated daily windspeed average from longWindSpeedTable
+Table longAirTempTable; //table to load csv for weeks air temp
+Table averageDailyAirTempTable; //table to hold calculated daily airtemp average from longAirTempTable
+
+float airTemp;
 
 void setup() {
   size(800, 800);
@@ -35,38 +37,61 @@ void setup() {
   longRainTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T10:59:25.685&rToDate=2020-09-22T10:59:25.685&rFamily=weather&rSensor=RG", "csv");
   for(int i =0; i<longRainTable.getRowCount(); i++){
      String dateTime = longRainTable.getString(i,0);
-     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get hour value using split -> tempDT[0] will give date, tempDT[1] will give time
+     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get date value using split -> tempDT[0] will give date, tempDT[1] will give time
      String[] DT = split(dateTime, ' ');
      String date = DT[0];
 
     longRainTable.setString(i, 0, date);     
   }
   
+  //load the weeks windspeeds from eif-research
   longWindSpeedTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T17:15:37.216&rToDate=2020-09-22T17:15:37.216&rFamily=weather&rSensor=IWS", "csv");
   for(int i =0; i<longWindSpeedTable.getRowCount(); i++){
      String dateTime = longWindSpeedTable.getString(i,0);
-     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get hour value using split -> tempDT[0] will give date, tempDT[1] will give time
+     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get date value using split -> tempDT[0] will give date
      String[] DT = split(dateTime, ' ');
      String date = DT[0];
 
     longWindSpeedTable.setString(i, 0, date);     
   }
+  
+  //load the weeks air temp from eif-research
+  longAirTempTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T20:02:55.757&rToDate=2020-09-22T20:02:55.757&rFamily=weather&rSensor=AT", "csv");
+  for(int i =0; i<longAirTempTable.getRowCount(); i++){
+     String dateTime = longAirTempTable.getString(i,0);
+     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get date value using split -> tempDT[0] will give date
+     String[] DT = split(dateTime, ' ');
+     String date = DT[0];
+     
+    longAirTempTable.setString(i, 0, date);     
+  }
+  
   //create new columns in total hourly rainfall table
   totalDailyRainfallTable = new Table();
   totalDailyRainfallTable.addColumn("date");
   totalDailyRainfallTable.addColumn("rainfall");
 
+  //create new columns in daily average windspeed table
   averageDailyWindSpeedTable = new Table();
   averageDailyWindSpeedTable.addColumn("date");
   averageDailyWindSpeedTable.addColumn("windspeed");
 
+  //create new columns in daily average windspeed table
+  averageDailyAirTempTable = new Table();
+  averageDailyAirTempTable.addColumn("date");
+  averageDailyAirTempTable.addColumn("airtemp");
+  
   getTotalDailyRainfall();
   getAverageDailyWindspeed();
+  getAverageDailyAirTemp();
   for (TableRow row : totalDailyRainfallTable.rows()){
       println(row.getString("date") + " " + row.getFloat("rainfall") );
   }
   for (TableRow row : averageDailyWindSpeedTable.rows()){
       println(row.getString("date") + " " + row.getFloat("windspeed") );
+  }
+   for (TableRow row : averageDailyAirTempTable.rows()){
+      println(row.getString("date") + " " + row.getFloat("airtemp") );
   }
   
   c1 = color(255, 255, 255);
@@ -83,7 +108,7 @@ void setup() {
   x2 = 300;
   y = 100;
   speed = 2;
-  sunSpeed = 3;
+ // sunSpeed = 3;
   opacity = 100;
   drops = new Drop[10000];    
   timer = new Timer(10);    
@@ -99,7 +124,7 @@ void draw() {
   //Sky - Simple light blue box
   fill(sky);
   rect(0, 0, width, height); 
-  sun(1);
+  sun(airTemp);
   sunPulse();
   
   //rain
@@ -131,9 +156,9 @@ void draw() {
   ypos3 = (height/4) +50;
  
     if(windSpeed > 0){
-    windAnimation2.display(xpos1, ypos1);
-    windAnimation1.display(xpos2, ypos2);
-    windAnimation1.display(xpos3, ypos3);
+      windAnimation2.display(xpos1, ypos1);
+      windAnimation1.display(xpos2, ypos2);
+      windAnimation1.display(xpos3, ypos3);
     }
   
   //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
@@ -200,17 +225,18 @@ void draw() {
     endShape();
  }
  //button selectors at bottom of the screen
-  button(1, totalDailyRainfallTable.getString(0, 0), GRAY);
-  button(2, totalDailyRainfallTable.getString(1, 0), GRAY);
-  button(3, totalDailyRainfallTable.getString(2, 0), GRAY);
-  button(4, totalDailyRainfallTable.getString(3, 0), GRAY);
-  button(5, totalDailyRainfallTable.getString(4, 0), GRAY);
-  button(6, totalDailyRainfallTable.getString(5, 0), GRAY);
-  button(7, totalDailyRainfallTable.getString(6, 0), GRAY);
+  button(1, totalDailyRainfallTable.getString(0, 0));
+  button(2, totalDailyRainfallTable.getString(1, 0));
+  button(3, totalDailyRainfallTable.getString(2, 0));
+  button(4, totalDailyRainfallTable.getString(3, 0));
+  button(5, totalDailyRainfallTable.getString(4, 0));
+  button(6, totalDailyRainfallTable.getString(5, 0));
+  button(7, totalDailyRainfallTable.getString(6, 0));
+  button(8, "RESET");
   
 }
 void mousePressed() { 
-  int daySelected=7;
+  int daySelected=-1;
   //if mouse pressed over button 1
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 10 && mouseX < 90) {
@@ -275,20 +301,36 @@ void mousePressed() {
       }
     }
     
-  float rainfall = totalDailyRainfallTable.getFloat(daySelected, 1);
-  float windSpeed = averageDailyWindSpeedTable.getFloat(daySelected, 1);
-  println("windspeed = " + windSpeed);
-  float rate = windSpeed*10;
-  frameRate(rate);
-  if (rainfall >0.0){
+         //if mouse pressed over reset button
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 560 && mouseX < 720) {
+        println("RESET");
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        daySelected = -1;
+      }
+    }
+  if(daySelected > -1){
+    float rainfall = totalDailyRainfallTable.getFloat(daySelected, 1);
+    float windSpeed = averageDailyWindSpeedTable.getFloat(daySelected, 1);
+    airTemp = averageDailyAirTempTable.getFloat(daySelected, 1);
+    println("airTemp = " + airTemp);
     println("rainfall = " + rainfall);
-   ifRain = true;
+    println("windspeed = " + windSpeed);
+    float rate = windSpeed*10;
+    //set frameRate to windspeed
+    frameRate(rate);
+    //if there is rainfall on that day make it rain
+    if (rainfall >0.0){
+        println("rainfall = " + rainfall);
+       ifRain = true;
+    }
+     else if (ifRain == true){
+       ifRain = false;
+        sky = #4D8EF5;
+       totalDrops = 0;
+    }
   }
-   else if (ifRain == true){
-     ifRain = false;
-      sky = #4D8EF5;
-     totalDrops = 0;
-  };
+  
 }
 
 
@@ -313,7 +355,7 @@ void cloud(int y, int number) {
 }
 
 //day selector
-void button (int nr, String text, int filter) {  
+void button (int nr, String text) {  
   int buttonW = 80;
   int buttonH = 20;
   int buttonX = nr*(buttonW+10)-buttonW;
@@ -329,22 +371,24 @@ void button (int nr, String text, int filter) {
   fill(0);
   text(text, buttonX+buttonW/2, buttonY+buttonH/2);
 }
-//Used to create and determine what type of sun is in the sky, 1 for normal sun, 2 for cloudy sun and >3 for sun with grey clouds
-void sun(int type) {
- if (type == 1) {
-   fill(#F2F227);
+//Used to create and determine what type of sun is in the sky  based of values from eif lab: 0-15degrees = small sun, 16-20 = medium sum, 20-25 = fairly large sun, 25>= large sun  
+void sun(float type) {
+     fill(#F2F227);
+ if (type > 0.0 && type <=15.0) {
+   sunSpeed = 2;
+   circle(650, 300, 10);
+ } else if (type > 15.0 && type <=20.0) {
+   circle(650, 300, 25);
+   sunSpeed = 3;
+ } else if (type > 21.0 && type <=25.0) {
+   circle(650, 300, 50);
+   sunSpeed = 4;
+ }else if (type >25.0){
    circle(650, 300, 100);
-   
- } else if (type == 2) {
-   fill(#F2F227);
-   circle(650, 300, 100);
-   cloudSun(255);
- } else {
-   fill(#F2F227);
-   circle(650, 300, 100);
-   cloudSun(180);
+   sunSpeed = 5;
  }
 }
+
 void sunPulse(){
    
   fill(#F2F227, opacity);
@@ -359,8 +403,6 @@ void sunPulse(){
     opacity = 100;
   } 
 }
-
-
 
 void cloudSun(color cloudSun) {
   pushMatrix();
@@ -382,22 +424,27 @@ void cloudSun(color cloudSun) {
  
  
 void getTotalDailyRainfall() {
-  //set temp Date and Time variable to use for comparison
+  //set temp Date variable to use for comparison
   String tempDate;
+  //for each row
   for(int i =0; i<longRainTable.getRowCount(); i++){
     int count = 0;
+    //set the tempdate as the first date of the row
     tempDate = longRainTable.getString(i,0);
     float totalDailyRainfall = 0; 
+    //set a new new in the totalDailyRainfallTable to equal that date
     TableRow newRow = totalDailyRainfallTable.addRow();
     newRow.setString("date", tempDate);
     
+    //count the rows in the table that have the same date
     for (TableRow row : longRainTable.matchRows(tempDate, 0)){
       count++;
-      //println(row.getString(0) + " " + row.getFloat(1) );
+      //add the amount of rainfall from each row that matches to the daily total
       totalDailyRainfall += row.getFloat(1);
     }
-    
+    //add the daily total to the row with the date set above
     newRow.setFloat("rainfall", totalDailyRainfall);
+    //increase i to the next date
     i+=count;
   }
 }
@@ -405,23 +452,57 @@ void getTotalDailyRainfall() {
 void getAverageDailyWindspeed(){
  //set temp Date and Time variable to use for comparison
   String tempDate;
+  //for each row
   for(int i =0; i<longWindSpeedTable.getRowCount(); i++){
     int count = 0;
+    //set the tempdate as the first date of the row
     tempDate = longWindSpeedTable.getString(i,0);
     float totalDailyWindSpeed = 0; 
     float averageDailyWindSpeed = 0;
+    //set a new new in the averageDailyWindSpeedTable to equal that date
     TableRow newRow = averageDailyWindSpeedTable.addRow();
     newRow.setString("date", tempDate);
     
+    //count the rows in the table that have the same date
     for (TableRow row : longWindSpeedTable.matchRows(tempDate, 0)){
       count++;
-      //println(row.getString(0) + " " + row.getFloat(1) );
+      //add the windspeed values to the total daily windspeed
       totalDailyWindSpeed += row.getFloat(1);
+      //divide totalDailyWindSpeed by count to calculate the average daily windspeed
       averageDailyWindSpeed = totalDailyWindSpeed/count;
-      
     }
-    
+    //add daily average to the row for that date
     newRow.setFloat("windspeed", averageDailyWindSpeed);
+    //increase i to the next date
     i+=count;
   }
+}
+
+void getAverageDailyAirTemp() {
+ //set temp Date and Time variable to use for comparison
+  String tempDate;
+  //for each row
+  for(int i =0; i<longAirTempTable.getRowCount(); i++){
+    int count = 0;
+    //set the tempdate as the first date of the row
+    tempDate = longAirTempTable.getString(i,0);
+    float totalDailyTemp = 0; 
+    float averageDailyTemp = 0;
+    //set a new new in the averageDailyWindSpeedTable to equal that date
+    TableRow newRow = averageDailyAirTempTable.addRow();
+    newRow.setString("date", tempDate);
+    
+    //count the rows in the table that have the same date
+    for (TableRow row : longAirTempTable.matchRows(tempDate, 0)){
+      count++;
+      //add the windspeed values to the total daily windspeed
+      totalDailyTemp += row.getFloat(1);
+      //divide totalDailyWindSpeed by count to calculate the average daily windspeed
+      averageDailyTemp = totalDailyTemp/count;
+    }
+    //add daily average to the row for that date
+    newRow.setFloat("airtemp", averageDailyTemp);
+    //increase i to the next date
+    i+=count;
+  }  
 }
