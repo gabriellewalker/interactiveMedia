@@ -8,7 +8,8 @@ Drop[] drops;       // An array of drop objects
 int totalDrops = 0; // totalDrops
 boolean ifRain = false;
 
-//commenting for git commit
+//commenting for git commit changing blah blah
+
 
 void setup() {
   size(800, 800);
