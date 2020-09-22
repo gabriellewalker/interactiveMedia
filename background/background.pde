@@ -203,7 +203,7 @@ void draw() {
   button(1, totalDailyRainfallTable.getString(0, 0), GRAY);
   button(2, totalDailyRainfallTable.getString(1, 0), GRAY);
   button(3, totalDailyRainfallTable.getString(2, 0), GRAY);
-  button(4, totalDailyRainfallTable.getString(2, 0), GRAY);
+  button(4, totalDailyRainfallTable.getString(3, 0), GRAY);
   button(5, totalDailyRainfallTable.getString(4, 0), GRAY);
   button(6, totalDailyRainfallTable.getString(5, 0), GRAY);
   button(7, totalDailyRainfallTable.getString(6, 0), GRAY);
