@@ -2,20 +2,51 @@ color c1, c2;
 color sky, leaves, ground, grass, cloud, cloudSun;
 int hillR, hillG, hillB, x1, x2, y, speed, sunSpeed, opacity;
 float d =10;
+
+//wind
 float xpos1, xpos2, xpos3;
 float ypos1, ypos2, ypos3;
+int windSpeed = 1;
+Animation windAnimation1, windAnimation2; 
+
+//day selector
+color selected = 150; //day selector
+boolean[] isSelected = new boolean[7];
+
+int daySelected; //will determine which row in our tables we get the data from
+
+
 Timer timer;        // One timer object
 Drop[] drops;       // An array of drop objects
 int totalDrops = 0; // totalDrops
 boolean ifRain = false;
-int windSpeed = 1;
-Animation windAnimation1, windAnimation2; 
-//commenting for git commit changing blah blah
 
+Table longRainTable; //table to hold csv for weeks rainfall taken from research lab
+int rainIndex =0;
+Table totalDailyRainfallTable; //table to hold total daily rainfall values
 
 void setup() {
   size(800, 800);
   background(255);
+  //load the weeks rainfall from eif-research
+  longRainTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T10:59:25.685&rToDate=2020-09-22T10:59:25.685&rFamily=weather&rSensor=RG", "csv");
+  for(int i =0; i<longRainTable.getRowCount(); i++){
+     String dateTime = longRainTable.getString(i,0);
+     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get hour value using split -> tempDT[0] will give date, tempDT[1] will give time
+     String[] DT = split(dateTime, ' ');
+     String date = DT[0];
+
+    longRainTable.setString(i, 0, date);     
+  }
+  //create new columns in total hourly rainfall table
+  totalDailyRainfallTable = new Table();
+  totalDailyRainfallTable.addColumn("date");
+  totalDailyRainfallTable.addColumn("rainfall");
+  getTotalDailyRainfall();
+  for (TableRow row : totalDailyRainfallTable.rows()){
+      println(row.getString("date") + " " + row.getFloat("rainfall") );
+  }
+
   c1 = color(255, 255, 255);
   c2 = color(74, 229, 225);
   sky = #4D8EF5;
@@ -34,19 +65,20 @@ void setup() {
   opacity = 100;
   drops = new Drop[10000];    
   timer = new Timer(10);    
-  timer.start();
+  timer.start(); 
   windAnimation1 = new Animation("wind_frame_", 18);
   windAnimation2 = new Animation("leaves_frame_", 27);
   frameRate(30);
+  textAlign(CENTER, CENTER);
+  for (int i = 0; i < 7; i++) isSelected[i] = false;
 }
 
 void draw() {
-  //Sky - Simple light blue box 
+  //Sky - Simple light blue box
   fill(sky);
   rect(0, 0, width, height); 
   sun(1);
   sunPulse();
-  
   
   //rain
  if (ifRain == true){
@@ -60,13 +92,15 @@ void draw() {
     timer.start();
   }
  }
+
   // Move and display all drops
   for (int i = 0; i < totalDrops; i++ ) {
     drops[i].move();
     drops[i].display();
- }
- 
- //wind
+   
+  }
+  
+  //wind
   xpos1 = (height/4)-55;
   ypos1 = (height/4) +50;
   xpos2 = 0;
@@ -143,20 +177,95 @@ void draw() {
     grassX += 5;
     endShape();
  }
- println(frameRate);
+ //button selectors at bottom of the screen
+  button(1, totalDailyRainfallTable.getString(0, 0), GRAY);
+  button(2, totalDailyRainfallTable.getString(1, 0), GRAY);
+  button(3, totalDailyRainfallTable.getString(2, 0), GRAY);
+  button(4, totalDailyRainfallTable.getString(2, 0), GRAY);
+  button(5, totalDailyRainfallTable.getString(4, 0), GRAY);
+  button(6, totalDailyRainfallTable.getString(5, 0), GRAY);
+  button(7, totalDailyRainfallTable.getString(6, 0), GRAY);
+  
 }
-
-void mousePressed() { // used to get the x and y coordinates where you click
-  //println("X: " + mouseX + "Y: " + mouseY);
-  if (ifRain == false){
+void mousePressed() { 
+  int daySelected=7;
+  //if mouse pressed over button 1
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 10 && mouseX < 90) {
+        println("Showing value for day: " + totalDailyRainfallTable.getString(0, 0));
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        isSelected[0] = true;
+        daySelected = 0;
+      }
+    }
+     //if mouse pressed over button 2
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 100 && mouseX < 180) {
+        println("Showing value for day: " + totalDailyRainfallTable.getString(1, 0));
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        isSelected[1] = true;
+        daySelected = 1;
+      }
+    }
+      //if mouse pressed over button 3
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 190 && mouseX < 270) {
+        println("Showing value for day: " + totalDailyRainfallTable.getString(2, 0));
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        isSelected[2] = true;
+        daySelected = 2;
+      }
+    }
+      //if mouse pressed over button 4
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 280 && mouseX < 360) {
+        println("Showing value for day: " + totalDailyRainfallTable.getString(3, 0));
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        isSelected[3] = true;
+        daySelected = 3;
+      }
+    }
+      //if mouse pressed over button 5
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 370 && mouseX < 450) {
+        println("Showing value for day: " + totalDailyRainfallTable.getString(4, 0));
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        isSelected[4] = true;
+        daySelected = 4;
+      }
+    }
+      //if mouse pressed over button 6
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 460 && mouseX < 540) {
+        println("Showing value for day: " + totalDailyRainfallTable.getString(5, 0));
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        isSelected[5] = true;
+        daySelected = 5;
+      }
+    }
+      //if mouse pressed over button 6
+  if (mouseY > height-50 && mouseY < height-15) {
+      if (mouseX > 550 && mouseX < 630) {
+        println("Showing value for day: " + totalDailyRainfallTable.getString(6, 0));
+        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        isSelected[6] = true;
+        daySelected = 6;
+      }
+    }
+    
+  println(daySelected);
+  float rainfall = totalDailyRainfallTable.getFloat(daySelected, 1);
+  if (rainfall >0.0){
+    println(rainfall);
    ifRain = true;
   }
    else if (ifRain == true){
      ifRain = false;
-     sky = #4D8EF5;
+      sky = #4D8EF5;
      totalDrops = 0;
   };
 }
+
 
 //the cloud will take a y coordinate and a speed at which it will move
 void cloud(int y, int number) {
@@ -178,6 +287,23 @@ void cloud(int y, int number) {
   if (x2 == 1000) {x2 = -200;}
 }
 
+//day selector
+void button (int nr, String text, int filter) {  
+  int buttonW = 80;
+  int buttonH = 20;
+  int buttonX = nr*(buttonW+10)-buttonW;
+  int buttonY = height-(buttonH+30);
+
+  if (isSelected[nr-1]) {
+    fill(255, 0, 0);
+  }
+  else{
+    fill(selected);
+  } 
+  rect(buttonX, buttonY, buttonW, buttonH);
+  fill(0);
+  text(text, buttonX+buttonW/2, buttonY+buttonH/2);
+}
 //Used to create and determine what type of sun is in the sky, 1 for normal sun, 2 for cloudy sun and >3 for sun with grey clouds
 void sun(int type) {
  if (type == 1) {
@@ -210,6 +336,7 @@ void sunPulse(){
 }
 
 
+
 void cloudSun(color cloudSun) {
   pushMatrix();
   translate(600, 350);
@@ -227,3 +354,26 @@ void cloudSun(color cloudSun) {
  //quadraticVertex(400, 730, 410, 710);
  //quadraticVertex(420, 730, 410, 740);
  //endShape();
+ 
+ 
+void getTotalDailyRainfall() {
+  //set temp Date and Time variable to use for comparison
+  String tempDate;
+  for(int i =0; i<longRainTable.getRowCount(); i++){
+    int count = 0;
+    tempDate = longRainTable.getString(i,0);
+    float totalDailyRainfall = 0; 
+    TableRow newRow = totalDailyRainfallTable.addRow();
+    newRow.setString("date", tempDate);
+    
+    for (TableRow row : longRainTable.matchRows(tempDate, 0)){
+      count++;
+      //println(row.getString(0) + " " + row.getFloat(1) );
+      totalDailyRainfall += row.getFloat(1);
+    }
+    
+    newRow.setFloat("rainfall", totalDailyRainfall);
+    i+=count;
+  }
+}
+
