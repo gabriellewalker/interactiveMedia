@@ -2,12 +2,14 @@ color c1, c2;
 color sky, leaves, ground, grass, cloud, cloudSun;
 int hillR, hillG, hillB, x1, x2, y, speed, sunSpeed, opacity;
 float d =10;
-
+float xpos1, xpos2, xpos3;
+float ypos1, ypos2, ypos3;
 Timer timer;        // One timer object
 Drop[] drops;       // An array of drop objects
 int totalDrops = 0; // totalDrops
 boolean ifRain = false;
-
+int windSpeed = 1;
+Animation windAnimation1, windAnimation2; 
 //commenting for git commit changing blah blah
 
 
@@ -16,7 +18,7 @@ void setup() {
   background(255);
   c1 = color(255, 255, 255);
   c2 = color(74, 229, 225);
-  sky = #7cece9;
+  sky = #4D8EF5;
   leaves = #126F12;
   ground = #54E54A;
   grass = #4AC43F;
@@ -32,15 +34,19 @@ void setup() {
   opacity = 100;
   drops = new Drop[10000];    
   timer = new Timer(10);    
-  timer.start();             
+  timer.start();
+  windAnimation1 = new Animation("wind_frame_", 18);
+  windAnimation2 = new Animation("leaves_frame_", 27);
+  frameRate(30);
 }
 
 void draw() {
-  //Sky - Simple light blue box
+  //Sky - Simple light blue box 
   fill(sky);
   rect(0, 0, width, height); 
   sun(1);
   sunPulse();
+  
   
   //rain
  if (ifRain == true){
@@ -54,13 +60,25 @@ void draw() {
     timer.start();
   }
  }
-
   // Move and display all drops
   for (int i = 0; i < totalDrops; i++ ) {
     drops[i].move();
     drops[i].display();
-   
-  }
+ }
+ 
+ //wind
+  xpos1 = (height/4)-55;
+  ypos1 = (height/4) +50;
+  xpos2 = 0;
+  ypos2 = (height/4) +50;
+  xpos3 = width/2;
+  ypos3 = (height/4) +50;
+ 
+    if(windSpeed > 0){
+    windAnimation2.display(xpos1, ypos1);
+    windAnimation1.display(xpos2, ypos2);
+    windAnimation1.display(xpos3, ypos3);
+    }
   
   //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
   cloud(100, 1);
@@ -135,7 +153,8 @@ void mousePressed() { // used to get the x and y coordinates where you click
   }
    else if (ifRain == true){
      ifRain = false;
-     sky = #7cece9;
+     sky = #4D8EF5;
+     totalDrops = 0;
   };
 }
 
@@ -189,7 +208,6 @@ void sunPulse(){
     opacity = 100;
   } 
 }
-
 
 
 void cloudSun(color cloudSun) {
