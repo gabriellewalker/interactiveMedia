@@ -1,9 +1,15 @@
-  
 color c1, c2;
 color sky, leaves, ground, grass, cloud, cloudSun;
 int hillR, hillG, hillB, x1, x2, y, speed, sunSpeed, opacity;
 float d =10;
 
+//wind
+float xpos1, xpos2, xpos3;
+float ypos1, ypos2, ypos3;
+int windSpeed = 1;
+Animation windAnimation1, windAnimation2; 
+
+//day selector
 color selected = 150; //day selector
 boolean[] isSelected = new boolean[7];
 
@@ -43,7 +49,7 @@ void setup() {
 
   c1 = color(255, 255, 255);
   c2 = color(74, 229, 225);
-  sky = #7cece9;
+  sky = #4D8EF5;
   leaves = #126F12;
   ground = #54E54A;
   grass = #4AC43F;
@@ -60,6 +66,9 @@ void setup() {
   drops = new Drop[10000];    
   timer = new Timer(10);    
   timer.start(); 
+  windAnimation1 = new Animation("wind_frame_", 18);
+  windAnimation2 = new Animation("leaves_frame_", 27);
+  frameRate(30);
   textAlign(CENTER, CENTER);
   for (int i = 0; i < 7; i++) isSelected[i] = false;
 }
@@ -90,6 +99,20 @@ void draw() {
     drops[i].display();
    
   }
+  
+  //wind
+  xpos1 = (height/4)-55;
+  ypos1 = (height/4) +50;
+  xpos2 = 0;
+  ypos2 = (height/4) +50;
+  xpos3 = width/2;
+  ypos3 = (height/4) +50;
+ 
+    if(windSpeed > 0){
+    windAnimation2.display(xpos1, ypos1);
+    windAnimation1.display(xpos2, ypos2);
+    windAnimation1.display(xpos3, ypos3);
+    }
   
   //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
   cloud(100, 1);
@@ -238,7 +261,7 @@ void mousePressed() {
   }
    else if (ifRain == true){
      ifRain = false;
-     sky = #7cece9;
+      sky = #4D8EF5;
      totalDrops = 0;
   };
 }
@@ -353,3 +376,4 @@ void getTotalDailyRainfall() {
     i+=count;
   }
 }
+
