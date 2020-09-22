@@ -23,7 +23,10 @@ boolean ifRain = false;
 
 Table longRainTable; //table to hold csv for weeks rainfall taken from research lab
 int rainIndex =0;
-Table totalDailyRainfallTable; //table to hold total daily rainfall values
+Table totalDailyRainfallTable;//table to hold total daily rainfall values
+Table averageDailyWindSpeedTable;
+Table longWindSpeedTable; //table to hold csv for weeks windspeeds taken from research lab
+int windSpeedIndex =0;
 
 void setup() {
   size(800, 800);
@@ -38,15 +41,34 @@ void setup() {
 
     longRainTable.setString(i, 0, date);     
   }
+  
+  longWindSpeedTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T17:15:37.216&rToDate=2020-09-22T17:15:37.216&rFamily=weather&rSensor=IWS", "csv");
+  for(int i =0; i<longWindSpeedTable.getRowCount(); i++){
+     String dateTime = longWindSpeedTable.getString(i,0);
+     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get hour value using split -> tempDT[0] will give date, tempDT[1] will give time
+     String[] DT = split(dateTime, ' ');
+     String date = DT[0];
+
+    longWindSpeedTable.setString(i, 0, date);     
+  }
   //create new columns in total hourly rainfall table
   totalDailyRainfallTable = new Table();
   totalDailyRainfallTable.addColumn("date");
   totalDailyRainfallTable.addColumn("rainfall");
+
+  averageDailyWindSpeedTable = new Table();
+  averageDailyWindSpeedTable.addColumn("date");
+  averageDailyWindSpeedTable.addColumn("windspeed");
+
   getTotalDailyRainfall();
+  getAverageDailyWindspeed();
   for (TableRow row : totalDailyRainfallTable.rows()){
       println(row.getString("date") + " " + row.getFloat("rainfall") );
   }
-
+  for (TableRow row : averageDailyWindSpeedTable.rows()){
+      println(row.getString("date") + " " + row.getFloat("windspeed") );
+  }
+  
   c1 = color(255, 255, 255);
   c2 = color(74, 229, 225);
   sky = #4D8EF5;
@@ -253,10 +275,13 @@ void mousePressed() {
       }
     }
     
-  println(daySelected);
   float rainfall = totalDailyRainfallTable.getFloat(daySelected, 1);
+  float windSpeed = averageDailyWindSpeedTable.getFloat(daySelected, 1);
+  println("windspeed = " + windSpeed);
+  float rate = windSpeed*10;
+  frameRate(rate);
   if (rainfall >0.0){
-    println(rainfall);
+    println("rainfall = " + rainfall);
    ifRain = true;
   }
    else if (ifRain == true){
@@ -377,3 +402,26 @@ void getTotalDailyRainfall() {
   }
 }
 
+void getAverageDailyWindspeed(){
+ //set temp Date and Time variable to use for comparison
+  String tempDate;
+  for(int i =0; i<longWindSpeedTable.getRowCount(); i++){
+    int count = 0;
+    tempDate = longWindSpeedTable.getString(i,0);
+    float totalDailyWindSpeed = 0; 
+    float averageDailyWindSpeed = 0;
+    TableRow newRow = averageDailyWindSpeedTable.addRow();
+    newRow.setString("date", tempDate);
+    
+    for (TableRow row : longWindSpeedTable.matchRows(tempDate, 0)){
+      count++;
+      //println(row.getString(0) + " " + row.getFloat(1) );
+      totalDailyWindSpeed += row.getFloat(1);
+      averageDailyWindSpeed = totalDailyWindSpeed/count;
+      
+    }
+    
+    newRow.setFloat("windspeed", averageDailyWindSpeed);
+    i+=count;
+  }
+}
