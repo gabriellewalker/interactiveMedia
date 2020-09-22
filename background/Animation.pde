@@ -10,7 +10,6 @@ class Animation {
     for (int i = 0; i < imageCount; i++) {
       // Use nf() to number format 'i' into four digits
       String filename = imagePrefix + nf(i, 4) + ".gif";
-      println(filename);
       images[i] = loadImage(filename);
     }
   }
