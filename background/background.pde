@@ -15,7 +15,7 @@ boolean[] isSelected = new boolean[8];
 
 //mouseover values
 int rainX, rainY, windX, windY, sunX, sunY;
-int rainSize = 600;
+int rainSize = 800;
 int windSize = 450;
 int sunSize = 150;
 
@@ -151,11 +151,11 @@ void draw() {
    
   //testing boxes
  
- // noFill();
- // stroke(255);
- // rect(rainX, rainY, rainSize, rainSize);
- // rect(windX, windY, windSize, windSize);
- // ellipse(sunX, sunY, sunSize, sunSize);
+  //noFill();
+  //stroke(255);
+  //rect(rainX, rainY, width, height/4);
+  //rect(windX, windY, windSize, windSize);
+  //ellipse(sunX, sunY, sunSize, sunSize);
   
    
   //rain
@@ -186,12 +186,17 @@ void draw() {
   xpos3 = width/2;
   ypos3 = (height/4) +50;
  
-    if(windSpeed > 0){
+  if(frameRate < 35){
+      windAnimation2.display(xpos1, ypos1);
+  } 
+  else{
       windAnimation2.display(xpos1, ypos1);
       windAnimation1.display(xpos2, ypos2);
       windAnimation1.display(xpos3, ypos3);
-    }
-  
+  }  
+      
+    
+     
   //mouseover checks
   if (overWind(windX, windY, windSize, windSize)){
    println("windOver = true");
@@ -199,7 +204,7 @@ void draw() {
   }else println("windOver = false");
   
   
-   if (overRain(rainX, rainY, rainSize, rainSize)){
+   if (overRain(rainX, rainY, rainSize, (rainSize/2))){
    println("rainOver = true");
   }else println("rainOver = false");
   
@@ -446,7 +451,7 @@ void sunPulse(){
   
   d = d + sunSpeed;
   opacity--;
-  if (d > 400) {
+  if (d > 300) {
     d = 10;
     opacity = 100;
   } 
@@ -564,7 +569,7 @@ void update(int x, int y) {
    
     
    
-  } else if ( overRain(rainX, rainY, rainSize, rainSize) ) {
+  } else if ( overRain(rainX, rainY, rainSize, (rainSize/2)) ) {
     rainOver = true;
      
     windOver = false;
