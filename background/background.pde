@@ -207,7 +207,8 @@ void draw() {
   }
       
     
-     
+   textSize(18);
+
   //mouseover checks
   if (overWind(windX, windY, windSize, windSize)){
    println("windOver = true");
@@ -216,20 +217,19 @@ void draw() {
     
      fill(255);
      
-     text("Wind Speed " + dailyWind + " km/h", 400, 30);
+     text("Average Wind Speed: " + dailyWind + " km/h", 400, 30);
    }
     
   }else println("windOver = false");
   
   
-   if (overRain(rainX, rainY, rainSize, (rainSize/4)) && ifRain == true){
+   if (overRain(rainX, rainY, rainSize, (rainSize/4)) ){
    println("rainOver = true");
    if(daySelected != -1){
      dailyRain = str(totalDailyRainfallTable.getFloat(daySelected, 1));
      
      fill(255);
-    
-     text("Average Rainfall " + dailyRain + " mL",  400, 30);
+     text("Total Rainfall: " + dailyRain + " mL",  400, 30);
    }
   }else println("rainOver = false");
   
@@ -242,7 +242,7 @@ void draw() {
      
      fill(255);
      
-     text("Average Temperature " + dailyRain + " Degrees C", 400, 30);
+     text("Average Air Temperature:" + dailyRain + " Degrees C", 400, 30);
   }else println("sunOver = false");
    } 
   
@@ -464,6 +464,7 @@ void button (int nr, String text) {
   } 
   rect(buttonX, buttonY, buttonW, buttonH);
   fill(0);
+  textSize(12);
   text(text, buttonX+buttonW/2, buttonY+buttonH/2);
 }
 //Used to create and determine what type of sun is in the sky  based of values from eif lab: 0-15degrees = small sun, 16-20 = medium sum, 20-25 = fairly large sun, 25>= large sun  
