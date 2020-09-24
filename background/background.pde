@@ -108,7 +108,6 @@ void setup() {
   x2 = 300;
   y = 100;
   speed = 2;
- // sunSpeed = 3;
   opacity = 100;
   drops = new Drop[10000];    
   timer = new Timer(10);    
