@@ -239,7 +239,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 10 && mouseX < 90) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(0, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[0] = true;
         daySelected = 0;
       }
@@ -248,7 +248,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 100 && mouseX < 180) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(1, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[1] = true;
         daySelected = 1;
       }
@@ -257,7 +257,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 190 && mouseX < 270) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(2, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[2] = true;
         daySelected = 2;
       }
@@ -266,7 +266,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 280 && mouseX < 360) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(3, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[3] = true;
         daySelected = 3;
       }
@@ -275,7 +275,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 370 && mouseX < 450) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(4, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[4] = true;
         daySelected = 4;
       }
@@ -284,7 +284,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 460 && mouseX < 540) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(5, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[5] = true;
         daySelected = 5;
       }
@@ -293,7 +293,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 550 && mouseX < 630) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(6, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[6] = true;
         daySelected = 6;
       }
@@ -304,7 +304,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 640 && mouseX < 720) {
         println("RESET");
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[7] = true;
         daySelected = -1;
       }
