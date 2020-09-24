@@ -12,6 +12,16 @@ Animation windAnimation1, windAnimation2, spriteRainAnimation, spriteWindAnimati
 //day selector
 boolean[] isSelected = new boolean[8];
 
+//mouseover values
+int rainX, rainY, windX, windY, sunX, sunY;
+int rainSize = 800;
+int windSize = 450;
+int sunSize = 150;
+
+boolean rainOver = false;
+boolean windOver = false;
+boolean sunOver = false;
+
 int daySelected; //will determine which row in our tables we get the data from
 
 
@@ -111,15 +121,36 @@ void setup() {
   frameRate(30);
   textAlign(CENTER, CENTER);
   for (int i = 0; i < 7; i++) isSelected[i] = false;
+  
+  //mouseover
+  rainX = 0;
+  rainY = 0;
+  windX = (width/4)-55;
+  windY = (height/4) +50;
+  sunX = 650;
+  sunY = 300;
+  //testing boxes
+  
 }
 
 void draw() {
+
+  
   //Sky - Simple light blue box
   fill(sky);
   rect(0, 0, width, height); 
   sun(airTemp);
   sunPulse();
+   
+  //testing boxes
+ 
+  //noFill();
+  //stroke(255);
+  //rect(rainX, rainY, width, height/4);
+  //rect(windX, windY, windSize, windSize);
+  //ellipse(sunX, sunY, sunSize, sunSize);
   
+   
   //rain
  if (ifRain == true){
   sky = (#9391A7);
@@ -150,14 +181,37 @@ void draw() {
   xpos3 = width/2;
   ypos3 = (height/4) +50;
  
-    if(windSpeed > 0){
+  if(frameRate < 35){
+      windAnimation2.display(xpos1, ypos1);
+  } 
+  else{
       windAnimation2.display(xpos1, ypos1);
       windAnimation1.display(xpos2, ypos2);
       windAnimation1.display(xpos3, ypos3);
+  }  
+      
+    
+     
+  //mouseover checks
+  if (overWind(windX, windY, windSize, windSize)){
+   println("windOver = true");
+   
+  }else println("windOver = false");
+  
+  
+   if (overRain(rainX, rainY, rainSize, (rainSize/2))){
+   println("rainOver = true");
+  }else println("rainOver = false");
+  
+   if (overSun(sunX, sunY, sunSize)){
+   println("sunOver = true");
+  }else println("sunOver = false");
+  
+  
       if  (ifRain == false) {
         spriteWindAnimation.display(300, 320);
       }
-    }
+    
   
   //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
   cloud(100, 1);
@@ -406,7 +460,7 @@ void sunPulse(){
   
   d = d + sunSpeed;
   opacity--;
-  if (d > 400) {
+  if (d > 300) {
     d = 10;
     opacity = 100;
   } 
@@ -513,4 +567,62 @@ void getAverageDailyAirTemp() {
     //increase i to the next date
     i+=count;
   }  
+}
+void update(int x, int y) {
+  if( overWind(windX, windY, windSize, windSize) ) {
+    windOver = true;
+    
+    rainOver = false;
+    sunOver = false;
+
+   
+    
+   
+  } else if ( overRain(rainX, rainY, rainSize, (rainSize/2)) ) {
+    rainOver = true;
+     
+    windOver = false;
+    sunOver = false;
+    
+    
+  } else if ( overSun(sunX, sunY, sunSize) ) {
+    
+    sunOver = true;
+    
+    windOver = false;
+    rainOver = false;
+    
+   }else {
+    windOver = rainOver = sunOver =  false;
+    
+  }
+}
+
+boolean overRain(int x, int y, int width, int height) {
+  if (mouseX >= x && mouseX <= x+width && 
+      mouseY >= y && mouseY <= y+height) {
+    return true;
+  } else {
+    return false;
+  }
+}
+boolean overWind(int x, int y, int width, int height) {
+  if (mouseX >= x && mouseX <= x+width && 
+      mouseY >= y && mouseY <= y+height) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+boolean overSun(int x, int y, int diameter) {
+  float disX = x - mouseX;
+  float disY = y - mouseY;
+  
+  if(sqrt(sq(disX) + sq(disY)) < diameter/2 ) {
+     
+    return true;
+  } else {
+    return false;
+  }
 }
