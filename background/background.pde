@@ -7,7 +7,7 @@ float d =10;
 float xpos1, xpos2, xpos3;
 float ypos1, ypos2, ypos3;
 int windSpeed = 1;
-Animation windAnimation1, windAnimation2; 
+Animation windAnimation1, windAnimation2, spriteRainAnimation, spriteWindAnimation, spriteIdleAnimation; 
 
 //day selector
 boolean[] isSelected = new boolean[8];
@@ -105,6 +105,9 @@ void setup() {
   timer.start(); 
   windAnimation1 = new Animation("wind_frame_", 18);
   windAnimation2 = new Animation("leaves_frame_", 27);
+  spriteRainAnimation = new Animation("spriteRAIN", 7);
+  spriteIdleAnimation = new Animation ("spriteIDLE", 4);
+  spriteWindAnimation = new Animation ("spriteWIND", 4);
   frameRate(30);
   textAlign(CENTER, CENTER);
   for (int i = 0; i < 7; i++) isSelected[i] = false;
@@ -120,6 +123,7 @@ void draw() {
   //rain
  if (ifRain == true){
   sky = (#9391A7);
+  spriteRainAnimation.display(300, 320);
   if (timer.isFinished()) {
     drops[totalDrops] = new Drop();
     totalDrops ++ ;
@@ -128,6 +132,7 @@ void draw() {
     }
     timer.start();
   }
+  else spriteIdleAnimation.display(300, 320);
  }
 
   // Move and display all drops
@@ -149,6 +154,9 @@ void draw() {
       windAnimation2.display(xpos1, ypos1);
       windAnimation1.display(xpos2, ypos2);
       windAnimation1.display(xpos3, ypos3);
+      if  (ifRain == false) {
+        spriteWindAnimation.display(300, 320);
+      }
     }
   
   //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
