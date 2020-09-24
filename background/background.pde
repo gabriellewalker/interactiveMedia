@@ -7,10 +7,9 @@ float d =10;
 float xpos1, xpos2, xpos3;
 float ypos1, ypos2, ypos3;
 int windSpeed = 1;
-Animation windAnimation1, windAnimation2; 
+Animation windAnimation1, windAnimation2, spriteRainAnimation, spriteWindAnimation, spriteIdleAnimation; 
 
 //day selector
-color selected = 150; //day selector
 boolean[] isSelected = new boolean[8];
 
 //mouseover values
@@ -38,7 +37,7 @@ Table averageDailyWindSpeedTable; //table to hold calculated daily windspeed ave
 Table longAirTempTable; //table to load csv for weeks air temp
 Table averageDailyAirTempTable; //table to hold calculated daily airtemp average from longAirTempTable
 
-float airTemp;
+float airTemp = 20; //default air temp
 
 void setup() {
   size(800, 800);
@@ -94,16 +93,7 @@ void setup() {
   getTotalDailyRainfall();
   getAverageDailyWindspeed();
   getAverageDailyAirTemp();
-  for (TableRow row : totalDailyRainfallTable.rows()){
-      println(row.getString("date") + " " + row.getFloat("rainfall") );
-  }
-  for (TableRow row : averageDailyWindSpeedTable.rows()){
-      println(row.getString("date") + " " + row.getFloat("windspeed") );
-  }
-   for (TableRow row : averageDailyAirTempTable.rows()){
-      println(row.getString("date") + " " + row.getFloat("airtemp") );
-  }
-  
+
   c1 = color(255, 255, 255);
   c2 = color(74, 229, 225);
   sky = #4D8EF5;
@@ -125,6 +115,9 @@ void setup() {
   timer.start(); 
   windAnimation1 = new Animation("wind_frame_", 18);
   windAnimation2 = new Animation("leaves_frame_", 27);
+  spriteRainAnimation = new Animation("spriteRAIN", 7);
+  spriteIdleAnimation = new Animation ("spriteIDLE", 4);
+  spriteWindAnimation = new Animation ("spriteWIND", 4);
   frameRate(30);
   textAlign(CENTER, CENTER);
   for (int i = 0; i < 7; i++) isSelected[i] = false;
@@ -161,6 +154,7 @@ void draw() {
   //rain
  if (ifRain == true){
   sky = (#9391A7);
+  spriteRainAnimation.display(300, 320);
   if (timer.isFinished()) {
     drops[totalDrops] = new Drop();
     totalDrops ++ ;
@@ -169,6 +163,7 @@ void draw() {
     }
     timer.start();
   }
+  else spriteIdleAnimation.display(300, 320);
  }
 
   // Move and display all drops
@@ -213,6 +208,10 @@ void draw() {
   }else println("sunOver = false");
   
   
+      if  (ifRain == false) {
+        spriteWindAnimation.display(300, 320);
+      }
+    
   
   //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
   cloud(100, 1);
@@ -294,7 +293,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 10 && mouseX < 90) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(0, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[0] = true;
         daySelected = 0;
       }
@@ -303,7 +302,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 100 && mouseX < 180) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(1, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[1] = true;
         daySelected = 1;
       }
@@ -312,7 +311,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 190 && mouseX < 270) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(2, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[2] = true;
         daySelected = 2;
       }
@@ -321,7 +320,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 280 && mouseX < 360) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(3, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[3] = true;
         daySelected = 3;
       }
@@ -330,7 +329,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 370 && mouseX < 450) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(4, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[4] = true;
         daySelected = 4;
       }
@@ -339,29 +338,33 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 460 && mouseX < 540) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(5, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[5] = true;
         daySelected = 5;
       }
     }
-      //if mouse pressed over button 6
+      //if mouse pressed over button 7
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 550 && mouseX < 630) {
         println("Showing value for day: " + totalDailyRainfallTable.getString(6, 0));
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[6] = true;
         daySelected = 6;
       }
     }
+   
     
-         //if mouse pressed over reset button
+   //if mouse pressed over reset button
   if (mouseY > height-50 && mouseY < height-15) {
-      if (mouseX > 560 && mouseX < 720) {
+      if (mouseX > 640 && mouseX < 720) {
         println("RESET");
-        for (int j = 0; j < 7; j++) isSelected[j] = false;
+        for (int j = 0; j < 8; j++) isSelected[j] = false;
+        isSelected[7] = true;
         daySelected = -1;
       }
     }
+    
+    
   if(daySelected > -1){
     float rainfall = totalDailyRainfallTable.getFloat(daySelected, 1);
     float windSpeed = averageDailyWindSpeedTable.getFloat(daySelected, 1);
@@ -382,6 +385,12 @@ void mousePressed() {
         sky = #4D8EF5;
        totalDrops = 0;
     }
+  }
+  else{
+    frameRate(20);
+    ifRain = false;
+    totalDrops = 0;
+    sky = #4D8EF5;
   }
   
 }
@@ -415,10 +424,10 @@ void button (int nr, String text) {
   int buttonY = height-(buttonH+30);
 
   if (isSelected[nr-1]) {
-    fill(255, 0, 0);
+    fill(#97D3D2);
   }
   else{
-    fill(selected);
+    fill(#C9FFB7);
   } 
   rect(buttonX, buttonY, buttonW, buttonH);
   fill(0);
@@ -429,12 +438,12 @@ void sun(float type) {
      fill(#F2F227);
  if (type > 0.0 && type <=15.0) {
    sunSpeed = 2;
-   circle(650, 300, 10);
- } else if (type > 15.0 && type <=20.0) {
    circle(650, 300, 25);
+ } else if (type > 15.0 && type <=20.0) {
+   circle(650, 300, 50);
    sunSpeed = 3;
  } else if (type > 21.0 && type <=25.0) {
-   circle(650, 300, 50);
+   circle(650, 300, 75);
    sunSpeed = 4;
  }else if (type >25.0){
    circle(650, 300, 100);
