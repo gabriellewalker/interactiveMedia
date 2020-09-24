@@ -525,24 +525,15 @@ void sound(String name) { //takes the name of a sound file (.wav) placed in the 
 String audioFileName = sketchPath("") + "data/" +name+ ".wav";
   SamplePlayer player = new SamplePlayer(ac, SampleManager.sample(audioFileName));
   
-  Envelope rate = new Envelope(ac, 8);
+  Envelope rate = new Envelope(ac, 1);
   player.setRate(rate);
   
   player.setLoopType(SamplePlayer.LoopType.LOOP_FORWARDS);
   
-  TapIn tin = new TapIn(ac, 1000);
-  TapOut tout = new TapOut(ac, tin, 500);
-  Gain gDelay = new Gain(ac, 1, 0.5);
-  gDelay.addInput(tout);
-  tin.addInput(gDelay);
-  
-  tin.addInput(player);
-  
   Panner p = new Panner(ac, 0); 
-  Gain g = new Gain(ac, 2, 0.5);
+  Gain g = new Gain(ac, 2, 0.2);
   
   p.addInput(player);
-  p.addInput(tout);
   g.addInput(p);
   ac.out.addInput(g);
   ac.start();
