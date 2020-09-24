@@ -1,3 +1,8 @@
+import beads.*;
+import java.util.Arrays; 
+
+AudioContext ac;
+
 color c1, c2;
 color sky, leaves, ground, grass, cloud, cloudSun;
 int hillR, hillG, hillB, x1, x2, y, speed, sunSpeed, opacity;
@@ -33,6 +38,8 @@ float airTemp;
 void setup() {
   size(800, 800);
   background(255);
+  ac = new AudioContext();
+  //print(sketchPath("") + "data/rain.wav"); - used to search for data path (not needed)
   //load the weeks rainfall from eif-research
   longRainTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T10:59:25.685&rToDate=2020-09-22T10:59:25.685&rFamily=weather&rSensor=RG", "csv");
   for(int i =0; i<longRainTable.getRowCount(); i++){
@@ -240,6 +247,7 @@ void mousePressed() {
   //if mouse pressed over button 1
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 10 && mouseX < 90) {
+        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(0, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[0] = true;
@@ -249,6 +257,7 @@ void mousePressed() {
      //if mouse pressed over button 2
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 100 && mouseX < 180) {
+        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(1, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[1] = true;
@@ -258,6 +267,7 @@ void mousePressed() {
       //if mouse pressed over button 3
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 190 && mouseX < 270) {
+        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(2, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[2] = true;
@@ -267,6 +277,7 @@ void mousePressed() {
       //if mouse pressed over button 4
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 280 && mouseX < 360) {
+        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(3, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[3] = true;
@@ -276,6 +287,7 @@ void mousePressed() {
       //if mouse pressed over button 5
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 370 && mouseX < 450) {
+        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(4, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[4] = true;
@@ -285,6 +297,7 @@ void mousePressed() {
       //if mouse pressed over button 6
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 460 && mouseX < 540) {
+        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(5, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[5] = true;
@@ -294,6 +307,7 @@ void mousePressed() {
       //if mouse pressed over button 6
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 550 && mouseX < 630) {
+        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(6, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[6] = true;
@@ -304,6 +318,7 @@ void mousePressed() {
          //if mouse pressed over reset button
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 560 && mouseX < 720) {
+        ac.stop();
         println("RESET");
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         daySelected = -1;
@@ -323,6 +338,7 @@ void mousePressed() {
     if (rainfall >0.0){
         println("rainfall = " + rainfall);
        ifRain = true;
+       sound("rain");
     }
      else if (ifRain == true){
        ifRain = false;
@@ -330,9 +346,7 @@ void mousePressed() {
        totalDrops = 0;
     }
   }
-  
 }
-
 
 //the cloud will take a y coordinate and a speed at which it will move
 void cloud(int y, int number) {
@@ -505,4 +519,31 @@ void getAverageDailyAirTemp() {
     //increase i to the next date
     i+=count;
   }  
+}
+
+void sound(String name) { //takes the name of a sound file (.wav) placed in the data folder and plays it
+String audioFileName = sketchPath("") + "data/" +name+ ".wav";
+  SamplePlayer player = new SamplePlayer(ac, SampleManager.sample(audioFileName));
+  
+  Envelope rate = new Envelope(ac, 8);
+  player.setRate(rate);
+  
+  player.setLoopType(SamplePlayer.LoopType.LOOP_FORWARDS);
+  
+  TapIn tin = new TapIn(ac, 1000);
+  TapOut tout = new TapOut(ac, tin, 500);
+  Gain gDelay = new Gain(ac, 1, 0.5);
+  gDelay.addInput(tout);
+  tin.addInput(gDelay);
+  
+  tin.addInput(player);
+  
+  Panner p = new Panner(ac, 0); 
+  Gain g = new Gain(ac, 2, 0.5);
+  
+  p.addInput(player);
+  p.addInput(tout);
+  g.addInput(p);
+  ac.out.addInput(g);
+  ac.start();
 }
