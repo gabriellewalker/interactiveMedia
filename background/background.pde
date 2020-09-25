@@ -16,6 +16,8 @@ Animation windAnimation1, windAnimation2, spriteRainAnimation, spriteWindAnimati
 
 //day selector
 boolean[] isSelected = new boolean[8];
+int daySelected=-1;
+
 
 //mouseover values
 int rainX, rainY, windX, windY, sunX, sunY;
@@ -27,7 +29,10 @@ boolean rainOver = false;
 boolean windOver = false;
 boolean sunOver = false;
 
-int daySelected; //will determine which row in our tables we get the data from
+String dailyWind;
+String dailyRain;
+String dailyTemp;
+//int daySelected; //will determine which row in our tables we get the data from
 
 
 Timer timer;        // One timer object
@@ -141,7 +146,7 @@ void setup() {
 
 void draw() {
 
-  
+ // println(frameRate);
   //Sky - Simple light blue box
   fill(sky);
   rect(0, 0, width, height); 
@@ -160,7 +165,7 @@ void draw() {
   //rain
  if (ifRain == true){
   sky = (#9391A7);
-  spriteRainAnimation.display(300, 320);
+  //spriteRainAnimation.display(300, 320);
   if (timer.isFinished()) {
     drops[totalDrops] = new Drop();
     totalDrops ++ ;
@@ -169,7 +174,7 @@ void draw() {
     }
     timer.start();
   }
-  else spriteIdleAnimation.display(300, 320);
+ // else spriteIdleAnimation.display(300, 320);
  }
 
   // Move and display all drops
@@ -187,37 +192,66 @@ void draw() {
   xpos3 = width/2;
   ypos3 = (height/4) +50;
  
-  if(frameRate < 35){
+ 
+  if(frameRate <= 36 && ifRain == false){
       windAnimation2.display(xpos1, ypos1);
+      spriteIdleAnimation.display(300, 320);
   } 
-  else{
+  else if (frameRate < 37 && ifRain == true){
+  windAnimation2.display(xpos1, ypos1);
+  spriteRainAnimation.display(300, 320);
+  }
+  else if (frameRate >= 35 && ifRain == false){
       windAnimation2.display(xpos1, ypos1);
       windAnimation1.display(xpos2, ypos2);
       windAnimation1.display(xpos3, ypos3);
-  }  
+      spriteWindAnimation.display(300, 320);
+  } else{
+     windAnimation2.display(xpos1, ypos1);
+      windAnimation1.display(xpos2, ypos2);
+      windAnimation1.display(xpos3, ypos3);
+  }
       
     
-     
+   textSize(18);
+
   //mouseover checks
   if (overWind(windX, windY, windSize, windSize)){
    println("windOver = true");
-   
+   if(daySelected != -1){
+     dailyWind = str(averageDailyWindSpeedTable.getFloat(daySelected, 1));
+    
+     fill(255);
+     
+     text("Average Wind Speed: " + dailyWind + " km/h", 400, 30);
+   }
+    
   }else println("windOver = false");
   
   
-   if (overRain(rainX, rainY, rainSize, (rainSize/2))){
+   if (overRain(rainX, rainY, rainSize, (rainSize/4)) ){
    println("rainOver = true");
+   if(daySelected != -1){
+     dailyRain = str(totalDailyRainfallTable.getFloat(daySelected, 1));
+     
+     fill(255);
+     text("Total Rainfall: " + dailyRain + " mL",  400, 30);
+   }
   }else println("rainOver = false");
+  
   
    if (overSun(sunX, sunY, sunSize)){
    println("sunOver = true");
+   println("rainOver = true");
+   if(daySelected != -1){
+     dailyRain = str(longAirTempTable.getFloat(daySelected, 1));
+     
+     fill(255);
+     
+     text("Average Air Temperature:" + dailyRain + " Degrees C", 400, 30);
   }else println("sunOver = false");
+   } 
   
-  
-      if  (ifRain == false) {
-        spriteWindAnimation.display(300, 320);
-      }
-    
   
   //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
   cloud(100, 1);
@@ -294,7 +328,6 @@ void draw() {
   
 }
 void mousePressed() { 
-  int daySelected=-1;
   //if mouse pressed over button 1
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 10 && mouseX < 90) {
@@ -445,6 +478,7 @@ void button (int nr, String text) {
   } 
   rect(buttonX, buttonY, buttonW, buttonH);
   fill(0);
+  textSize(12);
   text(text, buttonX+buttonW/2, buttonY+buttonH/2);
 }
 //Used to create and determine what type of sun is in the sky  based of values from eif lab: 0-15degrees = small sun, 16-20 = medium sum, 20-25 = fairly large sun, 25>= large sun  
@@ -592,7 +626,7 @@ void update(int x, int y) {
    
     
    
-  } else if ( overRain(rainX, rainY, rainSize, (rainSize/2)) ) {
+  } else if ( overRain(rainX, rainY, rainSize, (rainSize/4)) ) {
     rainOver = true;
      
     windOver = false;
