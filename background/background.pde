@@ -18,7 +18,6 @@ Animation windAnimation1, windAnimation2, spriteRainAnimation, spriteWindAnimati
 boolean[] isSelected = new boolean[8];
 int daySelected=-1;
 
-
 //mouseover values
 int rainX, rainY, windX, windY, sunX, sunY;
 int rainSize = 800;
@@ -32,8 +31,6 @@ boolean sunOver = false;
 String dailyWind;
 String dailyRain;
 String dailyTemp;
-//int daySelected; //will determine which row in our tables we get the data from
-
 
 Timer timer;        // One timer object
 Drop[] drops;       // An array of drop objects
@@ -53,7 +50,6 @@ void setup() {
   size(800, 800);
   background(255);
    ac = new AudioContext();
-  //print(sketchPath("") + "data/rain.wav"); - used to search for data path (not needed)
   //load the weeks rainfall from eif-research
   longRainTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T10:59:25.685&rToDate=2020-09-22T10:59:25.685&rFamily=weather&rSensor=RG", "csv");
   for(int i =0; i<longRainTable.getRowCount(); i++){
@@ -69,7 +65,6 @@ void setup() {
   longWindSpeedTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T17:15:37.216&rToDate=2020-09-22T17:15:37.216&rFamily=weather&rSensor=IWS", "csv");
   for(int i =0; i<longWindSpeedTable.getRowCount(); i++){
      String dateTime = longWindSpeedTable.getString(i,0);
-     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get date value using split -> tempDT[0] will give date
      String[] DT = split(dateTime, ' ');
      String date = DT[0];
 
@@ -80,7 +75,6 @@ void setup() {
   longAirTempTable = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-09-15T20:02:55.757&rToDate=2020-09-22T20:02:55.757&rFamily=weather&rSensor=AT", "csv");
   for(int i =0; i<longAirTempTable.getRowCount(); i++){
      String dateTime = longAirTempTable.getString(i,0);
-     //tempDateTime format is: YYYY-MM-DD HH:MM:SS - get date value using split -> tempDT[0] will give date
      String[] DT = split(dateTime, ' ');
      String date = DT[0];
      
@@ -140,48 +134,34 @@ void setup() {
   windY = (height/4) +50;
   sunX = 650;
   sunY = 300;
-  //testing boxes
   
 }
 
 void draw() {
 
- // println(frameRate);
   //Sky - Simple light blue box
   fill(sky);
   rect(0, 0, width, height); 
   sun(airTemp);
   sunPulse();
    
-  //testing boxes
- 
-  //noFill();
-  //stroke(255);
-  //rect(rainX, rainY, width, height/4);
-  //rect(windX, windY, windSize, windSize);
-  //ellipse(sunX, sunY, sunSize, sunSize);
-  
-   
-  //rain
- if (ifRain == true){
-  sky = (#9391A7);
-  //spriteRainAnimation.display(300, 320);
-  if (timer.isFinished()) {
-    drops[totalDrops] = new Drop();
-    totalDrops ++ ;
-    if (totalDrops >= drops.length) {
-      totalDrops = 0; // Start over
+  //rain: if rain is true show raindrops
+  if (ifRain == true){
+    sky = (#9391A7);
+    if (timer.isFinished()) {
+      drops[totalDrops] = new Drop();
+      totalDrops ++ ;
+      if (totalDrops >= drops.length) {
+        totalDrops = 0; // Start over
+      }
+      timer.start();
     }
-    timer.start();
   }
- // else spriteIdleAnimation.display(300, 320);
- }
 
   // Move and display all drops
   for (int i = 0; i < totalDrops; i++ ) {
     drops[i].move();
     drops[i].display();
-   
   }
   
   //wind
@@ -192,71 +172,63 @@ void draw() {
   xpos3 = width/2;
   ypos3 = (height/4) +50;
  
- 
+  //display animated character depending on rain and wind (frame rate)
   if(frameRate <= 36 && ifRain == false){
       windAnimation2.display(xpos1, ypos1);
       spriteIdleAnimation.display(300, 320);
   } 
   else if (frameRate < 37 && ifRain == true){
-  windAnimation2.display(xpos1, ypos1);
-  spriteRainAnimation.display(300, 320);
+    windAnimation2.display(xpos1, ypos1);
+    spriteRainAnimation.display(300, 320);
   }
   else if (frameRate >= 35 && ifRain == false){
-      windAnimation2.display(xpos1, ypos1);
-      windAnimation1.display(xpos2, ypos2);
-      windAnimation1.display(xpos3, ypos3);
-      spriteWindAnimation.display(300, 320);
-  } else{
-     windAnimation2.display(xpos1, ypos1);
-      windAnimation1.display(xpos2, ypos2);
-      windAnimation1.display(xpos3, ypos3);
+    windAnimation2.display(xpos1, ypos1);
+    windAnimation1.display(xpos2, ypos2);
+    windAnimation1.display(xpos3, ypos3);
+    spriteWindAnimation.display(300, 320);
+  } 
+  else{
+    windAnimation2.display(xpos1, ypos1);
+    windAnimation1.display(xpos2, ypos2);
+    windAnimation1.display(xpos3, ypos3);
   }
-      
-    
-   textSize(18);
-
-  //mouseover checks
-  if (overWind(windX, windY, windSize, windSize)){
-   println("windOver = true");
-   if(daySelected != -1){
-     dailyWind = str(averageDailyWindSpeedTable.getFloat(daySelected, 1));
-    
-     fill(255);
-     
-     text("Average Wind Speed: " + dailyWind + " km/h", 400, 30);
-   }
-    
-  }else println("windOver = false");
-  
-  
-   if (overRain(rainX, rainY, rainSize, (rainSize/4)) ){
-   println("rainOver = true");
-   if(daySelected != -1){
-     dailyRain = str(totalDailyRainfallTable.getFloat(daySelected, 1));
-     
-     fill(255);
-     text("Total Rainfall: " + dailyRain + " mL",  400, 30);
-   }
-  }else println("rainOver = false");
-  
-  
-   if (overSun(sunX, sunY, sunSize)){
-   println("sunOver = true");
-   println("rainOver = true");
-   if(daySelected != -1){
-     dailyRain = str(longAirTempTable.getFloat(daySelected, 1));
-     
-     fill(255);
-     
-     text("Average Air Temperature:" + dailyRain + " Degrees C", 400, 30);
-  }else println("sunOver = false");
-   } 
-  
-  
-  //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
+    //Cloud - change parameters to shift x/y coordinates and the speed, the cloud will reset once it dissapears off the screen.
   cloud(100, 1);
   cloud(300, 2);
   
+  textSize(18);
+  //mouseover checks
+  if (overWind(windX, windY, windSize, windSize)){
+    //println("windOver = true");
+    if(daySelected != -1){
+      dailyWind = str(averageDailyWindSpeedTable.getFloat(daySelected, 1));
+      fill(255);
+      text("Average Wind Speed: " + dailyWind + " km/h", 400, 30);
+    }
+    
+  }//else println("windOver = false");
+  
+  if (overRain(rainX, rainY, rainSize, (rainSize/4)) ){
+    //println("rainOver = true");
+    if(daySelected != -1){
+      dailyRain = str(totalDailyRainfallTable.getFloat(daySelected, 1));
+      fill(255);
+      text("Total Rainfall: " + dailyRain + " mL",  400, 30);
+    }
+  }//else println("rainOver = false");
+  
+  
+  if (overSun(sunX, sunY, sunSize)){
+    //println("sunOver = true");
+    //println("rainOver = true");
+    if(daySelected != -1){
+      dailyRain = str(longAirTempTable.getFloat(daySelected, 1));
+      fill(255);
+      text("Average Air Temperature:" + dailyRain + " Degrees C", 400, 30);
+    }//else println("sunOver = false");
+  } 
+  
+ 
   //Background - Simple hills made by drawing quadratic curves with varying colours to give depth
   //far hill
   strokeWeight(0);
@@ -325,6 +297,10 @@ void draw() {
   button(6, totalDailyRainfallTable.getString(5, 0));
   button(7, totalDailyRainfallTable.getString(6, 0));
   button(8, "RESET");
+  
+  fill(0);
+  textSize(18);
+  text("Select a date above to view it's weather. Hover over the elements to view data values", width/2, height-15);
   
 }
 void mousePressed() { 
@@ -403,6 +379,7 @@ void mousePressed() {
    //if mouse pressed over reset button
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 640 && mouseX < 720) {
+        ac.stop();
         println("RESET");
         for (int j = 0; j < 8; j++) isSelected[j] = false;
         isSelected[7] = true;
@@ -483,20 +460,20 @@ void button (int nr, String text) {
 }
 //Used to create and determine what type of sun is in the sky  based of values from eif lab: 0-15degrees = small sun, 16-20 = medium sum, 20-25 = fairly large sun, 25>= large sun  
 void sun(float type) {
-     fill(#F2F227);
- if (type > 0.0 && type <=15.0) {
-   sunSpeed = 2;
-   circle(650, 300, 25);
- } else if (type > 15.0 && type <=20.0) {
-   circle(650, 300, 50);
-   sunSpeed = 3;
- } else if (type > 21.0 && type <=25.0) {
-   circle(650, 300, 75);
-   sunSpeed = 4;
- }else if (type >25.0){
-   circle(650, 300, 100);
-   sunSpeed = 5;
- }
+  fill(#F2F227);
+  if (type > 0.0 && type <=15.0) {
+    sunSpeed = 2;
+    circle(650, 300, 25);
+  } else if (type > 15.0 && type <=20.0) {
+    circle(650, 300, 50);
+    sunSpeed = 3;
+  } else if (type > 21.0 && type <=25.0) {
+    circle(650, 300, 75);
+    sunSpeed = 4;
+  }else if (type >25.0){
+    circle(650, 300, 100);
+    sunSpeed = 5;
+  }
 }
 
 void sunPulse(){
@@ -525,13 +502,6 @@ void cloudSun(color cloudSun) {
   circle(100, 10, 90);
   popMatrix();
 }
-//Leaf shape - currently unused
- //beginShape();
- //vertex(410, 740);
- //quadraticVertex(400, 730, 410, 710);
- //quadraticVertex(420, 730, 410, 740);
- //endShape();
- 
  
 void getTotalDailyRainfall() {
   //set temp Date variable to use for comparison
@@ -619,30 +589,21 @@ void getAverageDailyAirTemp() {
 void update(int x, int y) {
   if( overWind(windX, windY, windSize, windSize) ) {
     windOver = true;
-    
     rainOver = false;
     sunOver = false;
-
-   
-    
-   
-  } else if ( overRain(rainX, rainY, rainSize, (rainSize/4)) ) {
+  } 
+  else if ( overRain(rainX, rainY, rainSize, (rainSize/4)) ) {
     rainOver = true;
-     
     windOver = false;
     sunOver = false;
-    
-    
-  } else if ( overSun(sunX, sunY, sunSize) ) {
-    
+  } 
+  else if ( overSun(sunX, sunY, sunSize) ) {
     sunOver = true;
-    
     windOver = false;
     rainOver = false;
-    
-   }else {
+   }
+  else {
     windOver = rainOver = sunOver =  false;
-    
   }
 }
 
@@ -666,9 +627,7 @@ boolean overWind(int x, int y, int width, int height) {
 boolean overSun(int x, int y, int diameter) {
   float disX = x - mouseX;
   float disY = y - mouseY;
-  
-  if(sqrt(sq(disX) + sq(disY)) < diameter/2 ) {
-     
+  if(sqrt(sq(disX) + sq(disY)) < diameter/2 ) {    
     return true;
   } else {
     return false;

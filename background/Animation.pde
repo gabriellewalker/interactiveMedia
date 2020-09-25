@@ -18,6 +18,4 @@ class Animation {
     frame = (frame+1) % imageCount;
     image(images[frame], xpos, ypos);
   }
-  
-
 }
