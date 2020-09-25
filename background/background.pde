@@ -530,6 +530,7 @@ void getAverageDailyAirTemp() {
   }  
 }
 
+//rain.wav taken from freesound: "The rain falls against the parasol" by straget
 void sound(String name) { //takes the name of a sound file (.wav) placed in the data folder and plays it
 String audioFileName = sketchPath("") + "data/" +name+ ".wav";
   SamplePlayer player = new SamplePlayer(ac, SampleManager.sample(audioFileName));
