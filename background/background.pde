@@ -7,6 +7,7 @@ color c1, c2;
 color sky, leaves, ground, grass, cloud, cloudSun;
 int hillR, hillG, hillB, x1, x2, y, speed, sunSpeed, opacity;
 float d =10;
+boolean isPlaying;
 
 //wind
 float xpos1, xpos2, xpos3;
@@ -248,6 +249,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 10 && mouseX < 90) {
         ac.stop();
+        isPlaying = false;
         println("Showing value for day: " + totalDailyRainfallTable.getString(0, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[0] = true;
@@ -258,6 +260,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 100 && mouseX < 180) {
         ac.stop();
+        isPlaying = false;
         println("Showing value for day: " + totalDailyRainfallTable.getString(1, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[1] = true;
@@ -268,6 +271,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 190 && mouseX < 270) {
         ac.stop();
+        isPlaying = false;
         println("Showing value for day: " + totalDailyRainfallTable.getString(2, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[2] = true;
@@ -277,7 +281,6 @@ void mousePressed() {
       //if mouse pressed over button 4
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 280 && mouseX < 360) {
-        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(3, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[3] = true;
@@ -288,6 +291,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 370 && mouseX < 450) {
         ac.stop();
+        isPlaying = false;
         println("Showing value for day: " + totalDailyRainfallTable.getString(4, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[4] = true;
@@ -297,7 +301,6 @@ void mousePressed() {
       //if mouse pressed over button 6
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 460 && mouseX < 540) {
-        ac.stop();
         println("Showing value for day: " + totalDailyRainfallTable.getString(5, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[5] = true;
@@ -308,6 +311,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 550 && mouseX < 630) {
         ac.stop();
+        isPlaying = false;
         println("Showing value for day: " + totalDailyRainfallTable.getString(6, 0));
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         isSelected[6] = true;
@@ -319,6 +323,7 @@ void mousePressed() {
   if (mouseY > height-50 && mouseY < height-15) {
       if (mouseX > 560 && mouseX < 720) {
         ac.stop();
+        isPlaying = false;
         println("RESET");
         for (int j = 0; j < 7; j++) isSelected[j] = false;
         daySelected = -1;
@@ -338,7 +343,11 @@ void mousePressed() {
     if (rainfall >0.0){
         println("rainfall = " + rainfall);
        ifRain = true;
-       sound("rain");
+       if (isPlaying) {
+       } else {
+         sound("rain");
+         isPlaying = true;
+       }
     }
      else if (ifRain == true){
        ifRain = false;
