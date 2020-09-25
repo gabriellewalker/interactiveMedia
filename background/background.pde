@@ -196,8 +196,6 @@ void draw() {
       windAnimation1.display(xpos3, ypos3);
   }  
       
-    
-     
   //mouseover checks
   if (overWind(windX, windY, windSize, windSize)){
    println("windOver = true");
